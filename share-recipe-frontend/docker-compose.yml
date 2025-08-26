@@ -1,0 +1,50 @@
+# filepath: /Users/daniarboranov/Documents/code_materials/python/project_fastapi/project1/docker-compose.yml
+
+services:
+  backend:
+    build: ./share-recipe-frontend/backend
+    container_name: recipe-backend
+    restart: unless-stopped
+    env_file:
+      - ./share-recipe-frontend/backend/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./share-recipe-frontend/backend/app:/app/app
+      - ./share-recipe-frontend/backend/alembic:/app/alembic
+      - ./share-recipe-frontend/backend/alembic.ini:/app/alembic.ini
+      - ./media:/app/media
+      - ./share-recipe-frontend/backend/logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    # Removed sleep (DB healthcheck already gates), added dynamic PORT and fail-fast on migrations
+    command: sh -c "alembic upgrade head || exit 1; uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level debug"
+
+  db:
+    image: postgres:15-alpine
+    container_name: recipe-db
+    restart: unless-stopped
+    env_file:
+      - ./share-recipe-frontend/backend/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - recipe-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d share_recipe" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: recipe-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  recipe-db-data:
