@@ -41,6 +41,14 @@ from app.models.feedback import FeedbackCreate, FeedbackResponse
 from app.db.dao.feedback import create_feedback, get_all_feedback
 from app.services.auth import get_current_user, get_optional_user
 
+# Root media dir (same logic as in main.py: share-recipe-frontend/media)
+MEDIA_ROOT = os.path.join(
+    os.path.dirname(
+        os.path.dirname(os.path.dirname(__file__))
+    ),  # -> share-recipe-frontend
+    "media",
+)
+
 router = APIRouter(prefix="/api/recipes", tags=["Recipes"])
 
 
@@ -172,12 +180,8 @@ async def upload_recipe_image(
     if len(contents) > 10 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="File size must be less than 10MB.")
 
-    upload_dir = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-        "..",
-        "media",
-        "recipe_photos",
-    )
+    # Save into the mounted media directory so it is served by /media
+    upload_dir = os.path.join(MEDIA_ROOT, "recipe_photos")
     os.makedirs(upload_dir, exist_ok=True)
     filename = f"recipe_{recipe_id}_{uuid.uuid4().hex}_{file.filename}"
     file_path = os.path.join(upload_dir, filename)
