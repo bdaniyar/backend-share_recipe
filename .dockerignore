@@ -1,0 +1,17 @@
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.git
+.gitignore
+README.md
+.env
+.venv
+venv/
+.pytest_cache
+.coverage
+htmlcov/
+*.log
+logs/
+node_modules/
+.DS_Store
