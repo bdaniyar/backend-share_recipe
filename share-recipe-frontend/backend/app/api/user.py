@@ -83,7 +83,7 @@ async def request_code(payload: RequestCodePayload):
     if count is not None and int(count) >= 3:
         raise HTTPException(
             status_code=429,
-            detail="You can request a verification code no more than 3 times in 5 minutes. Please wait before trying again."
+            detail="You can request a verification code no more than 3 times in 5 minutes. Please wait before trying again.",
         )
     # Generate 6-digit code
     code = f"{random.randint(0, 999999):06d}"
@@ -308,8 +308,8 @@ async def upload_profile_photo(
         raise HTTPException(status_code=400, detail="File size must be less than 5MB.")
     # Сохраняем файл в папку media/profile_photos
     upload_dir = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-        "..",
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),  # .../backend/app
+        "..",  # go up from backend/ to share-recipe-frontend/
         "media",
         "profile_photos",
     )

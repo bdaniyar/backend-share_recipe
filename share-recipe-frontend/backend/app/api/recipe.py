@@ -43,9 +43,8 @@ from app.services.auth import get_current_user, get_optional_user
 
 # Root media dir (same logic as in main.py: share-recipe-frontend/media)
 MEDIA_ROOT = os.path.join(
-    os.path.dirname(
-        os.path.dirname(os.path.dirname(__file__))
-    ),  # -> share-recipe-frontend
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),  # .../backend/app
+    "..",  # go up from backend/ to share-recipe-frontend/
     "media",
 )
 
