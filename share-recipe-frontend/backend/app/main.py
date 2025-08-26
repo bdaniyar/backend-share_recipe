@@ -1,12 +1,13 @@
 import os
 
 import redis.asyncio as redis
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from app.admin import setup_admin
 from app.api import recipe as recipe_router
@@ -18,7 +19,13 @@ import logging
 # Configure logging as early as possible
 setup_logging()
 
-app = FastAPI()
+ENV = os.getenv("ENV", "development").lower()
+
+# Disable automatic docs in production (we will add protected endpoints manually)
+if ENV == "production":
+    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+else:
+    app = FastAPI()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Create media directory relative to the backend directory
@@ -48,6 +55,43 @@ app.add_middleware(
 )
 
 app.add_middleware(RequestLoggingMiddleware)
+
+# HTTP Basic security for docs
+security = HTTPBasic()
+
+
+def _docs_auth(credentials: HTTPBasicCredentials = Depends(security)):
+    if ENV != "production":  # No protection in non-production
+        return True
+    username_ok = os.getenv("DOCS_USERNAME")
+    password_ok = os.getenv("DOCS_PASSWORD")
+    if not (
+        credentials.username == username_ok and credentials.password == password_ok
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authorized",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return True
+
+
+# Protected docs (only created in production; harmless in dev if duplicates of defaults)
+if ENV == "production":
+    from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+    from fastapi.responses import JSONResponse
+
+    @app.get("/openapi.json", dependencies=[Depends(_docs_auth)])
+    async def openapi_json():
+        return JSONResponse(app.openapi())
+
+    @app.get("/docs", dependencies=[Depends(_docs_auth)])
+    async def swagger_ui():
+        return get_swagger_ui_html(openapi_url="/openapi.json", title="API Docs")
+
+    @app.get("/redoc", dependencies=[Depends(_docs_auth)])
+    async def redoc_ui():
+        return get_redoc_html(openapi_url="/openapi.json", title="API Docs")
 
 
 @app.on_event("startup")

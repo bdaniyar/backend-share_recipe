@@ -24,8 +24,8 @@ class SimpleAuth(AuthenticationBackend):
         form = await request.form()
         username = form.get("username")
         password = form.get("password")
-        if username == os.getenv("ADMIN_USERNAME", "admin") and password == os.getenv(
-            "ADMIN_PASSWORD", "admin"
+        if username == os.getenv("ADMIN_USERNAME") and password == os.getenv(
+            "ADMIN_PASSWORD"
         ):
             request.session.update({"admin": True})
             return True
