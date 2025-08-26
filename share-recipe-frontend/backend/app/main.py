@@ -40,6 +40,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
+        "https://frontend-share-recipe-for-vercel.vercel.app",
     ],  # allow common Next.js dev ports
     allow_credentials=True,
     allow_methods=["*"],
