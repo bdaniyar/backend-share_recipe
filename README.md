@@ -2,7 +2,7 @@
 
 FastAPI backend for the Share Recipe application. Provides REST API for user authentication (email + Google OAuth), recipe management (create, update, like, save, comment), ingredients, feedback collection, and admin interface. Uses PostgreSQL for persistence, Redis for caching / short‑lived codes, JWT for auth tokens, Alembic for migrations, and SQLAdmin for lightweight admin panel.
 
-![App Screenshot](share-recipe-frontend/backend/assets/screenshot.png)
+![App Screenshot](share-recipe/backend/assets/screenshot.png)
 
 ## Frontend Repository
 - https://github.com/bdaniyar/frontend-share_recipe-for_vercel
@@ -39,14 +39,14 @@ A combined repository (frontend + backend + infra) with broader documentation:
 ## Quick Start (Local, Without Docker)
 Prerequisites: Python 3.11+, running PostgreSQL & Redis instances.
 
-1. Create and fill `.env` in `share-recipe-frontend/backend/` (see `.env.example`).
+1. Create and fill `.env` in `share-recipe/backend/` (see `.env.example`).
 2. Install deps:
    ```bash
-   pip install -r share-recipe-frontend/backend/requirements.txt
+   pip install -r share-recipe/backend/requirements.txt
    ```
 3. Run migrations:
    ```bash
-   cd share-recipe-frontend/backend
+   cd share-recipe/backend
    alembic upgrade head
    ```
 4. Start dev server:

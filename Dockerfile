@@ -7,13 +7,13 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y build-essential libpq-dev && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY share-recipe-frontend/backend/requirements.txt requirements.txt
+COPY share-recipe/backend/requirements.txt requirements.txt
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy app code
-COPY share-recipe-frontend/backend/app app
-COPY share-recipe-frontend/backend/alembic alembic
-COPY share-recipe-frontend/backend/alembic.ini alembic.ini
+COPY share-recipe/backend/app app
+COPY share-recipe/backend/alembic alembic
+COPY share-recipe/backend/alembic.ini alembic.ini
 
 # Expose default port (Railway may override via PORT env)
 EXPOSE 8000
